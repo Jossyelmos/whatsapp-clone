@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './Chat.css';
 import { Avatar, IconButton } from '@mui/material';
 import { AttachFile, InsertEmoticon, Mic, MoreVert, SearchOutlined } from '@mui/icons-material';
+import Moment from 'react-moment';
 import axios from './axios';
 
 const Chat = ({ messages }) => {
   const [input, setInput] = useState('');
+  const messageEndRef = useRef(null);
+
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView();
+  }, [messages]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -13,7 +19,7 @@ const Chat = ({ messages }) => {
     await axios.post('/messages/new', {
       message: input,
       name: 'Demo APP',
-      timestamp: 'Just now',
+      date: new Date(),
       received: false
     });
 
@@ -45,10 +51,12 @@ const Chat = ({ messages }) => {
           <p className={`chat__message ${message.received && "chat__reciever"}`}>
             <span key={message.id} className="chat__name">{ message.name }</span>
             {message.message}
-          <span className="chat__timestamp">{ message.timestamp }</span>
+          <span className="chat__timestamp"><Moment format='h:mm:ss a'>{ message.date }</Moment></span>
           </p>
         ))}
+        <div ref={messageEndRef} />
       </div>
+
       <div className="chat__footer">
         <InsertEmoticon />
         <form>
